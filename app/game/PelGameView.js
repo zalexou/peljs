@@ -20,6 +20,7 @@ var PelGameView = function(settings) {
         var currentPaddleY = parseInt(_this.settings.canvasSettings.height) - _this.margin * 2 - spot.height;
         spot.x(currentPaddleX);
         spot.y(currentPaddleY);
+        spot.length(paddleLength);
         _this.context.beginPath();
         _this.context.strokeRect(spot.x(), spot.y(), paddleLength, 5);
         _this.context.strokeStyle = 'black';
@@ -40,4 +41,11 @@ var PelGameView = function(settings) {
         _this.context.fillStyle = 'black';
         _this.context.fill();
     };
+
+    _this.drawBall = function(ball) {
+        _this.context.beginPath();
+        _this.context.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI, false);
+        _this.context.fillStyle = ball.color;
+        _this.context.fill();
+    }
 };
