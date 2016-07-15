@@ -8,6 +8,7 @@ var PelGameView = function(settings) {
     _this.margin = 5;
 
     _this.drawnSpots = [];
+    _this.drawnBalls = [];
     
     var availableWidth = parseInt(_this.settings.canvasSettings.width);
     var paddleCount = _this.settings.gameSettings.paddleSpots;
@@ -37,15 +38,41 @@ var PelGameView = function(settings) {
     _this.fillPaddleSpot = function(spot) {
         _this.emptyPaddleSpots();
         _this.context.beginPath();
-        _this.context.fillRect(spot.x(), spot.y(), paddleLength, 5);
         _this.context.fillStyle = 'black';
-        _this.context.fill();
+        _this.context.fillRect(spot.x(), spot.y(), paddleLength, 5);
+
     };
 
-    _this.drawBall = function(ball) {
+    _this.drawImpactPoints = function(impactPoints) {
+        _.forEach(impactPoints.top, function(point) {
+            _this.context.beginPath();
+            _this.context.fillStyle = "red";
+            _this.context.arc(point.x, point.y, 2, 0, 2 * Math.PI, false);
+            _this.context.fill();
+        });
+
+        _.forEach(impactPoints.bottom, function(point) {
+            _this.context.beginPath();
+            _this.context.fillStyle = "red";
+            _this.context.arc(point.x, point.y, 2, 0, 2 * Math.PI, false);
+            _this.context.fill();
+        });
+    };
+
+    _this.drawBall = function(ball, opacity) {
+        if(!opacity) opacity = 1;
         _this.context.beginPath();
         _this.context.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI, false);
-        _this.context.fillStyle = ball.color;
+        _this.context.fillStyle = "rgba(0, 0, 0, "+opacity+")";
         _this.context.fill();
+
+        _.forEach(ball.trailingBalls, function(ball, index) {
+            var opacity = 1 - (0.2 * index);
+            _this.drawBall(ball, opacity);
+        });
+    };
+
+    _this.eraseCanvas = function() {
+        _this.context.clearRect(0, 0, parseInt(_this.settings.canvasSettings.width), parseInt(_this.settings.canvasSettings.height));
     }
 };

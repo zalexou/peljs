@@ -41,12 +41,12 @@ var PaddleSpot = function(index) {
 
 var Ball = function() {
     var _this = this;
-    var entryPoint = null;
-    var exitPoint = null;
-    var velocity = null;
-    var trail = null;
+    _this.id = guid();
+    _this.velocity = 1;
+    _this.trailCount = 5;
+    _this.trailingBalls = [];
     var color = null;
-    _this.x = null;
+    _this.x = 0;
     _this.y = null;
 
     _this.flightPlan = null;
@@ -54,15 +54,29 @@ var Ball = function() {
     _this.target = null;
     _this.next = function() {
         var currentSlope = getSlope();
-        _this.x++;
-        _this.y = _this.y + currentSlope;
+        if(!currentSlope) {
+            return;
+        }
+        _this.x += _this.velocity;
+        _this.y = _this.y + (_this.velocity * currentSlope);
+        updateTrail();
+    };
+
+    var updateTrail = function() {
+        var copy = angular.copy(_this);
+        delete copy.trailingBalls;
+        _this.trailingBalls.unshift(copy);
+        _this.trailingBalls = _this.trailingBalls.slice(0, _this.trailCount);
     };
 
     var getSlope = function() {
         //Getting the current slope the ball is following
         var currentTarget = _.find(_this.flightPlan, function(point) {
             return (_this.x < point.x)
-        });
+        })
+        if(!currentTarget) {
+            return null;
+        }
         var slope = (_this.y - currentTarget.y) / (_this.x - currentTarget.x);
         return slope;
     };

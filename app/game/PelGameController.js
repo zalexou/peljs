@@ -25,23 +25,33 @@ var PelGameController = function PelGameController(settings) {
         createPaddleSpots();
         drawPaddleSpots();
         setImpactPoints();
+        drawImpactPoints();
         setPaddlePosition(_this.paddlePosition);
         createBall();
         drawBall();
         listenEvents();
-        //_this.gameLoopInterval = setInterval(nextFrame, _this.refreshRate);
+        _this.gameLoopInterval = setInterval(nextFrame, _this.refreshRate);
+    };
+    
+    var drawImpactPoints = function() {
+        gameView.drawImpactPoints(_this.impactPoints);
     };
     
     var createBall = function() {
         var ball = new Ball();
         ball.x = 0;
-        ball.y = 400;
+        ball.y = generateRandomInt(1, _this.paddleSpots[0].y());
         var plan = [];
         for(var i = 0; i < _this.impactPoints.bottom.length; i++) {
             plan.push(_this.impactPoints.bottom[i]);
             if(i < _this.impactPoints.top.length) {
                 plan.push(_this.impactPoints.top[i]);
             } else {
+                //generating the random exit point in the plan
+                plan.push({
+                    x: parseInt(_this.settings.canvas.width),
+                    y: generateRandomInt(1, _this.paddleSpots[0].y())
+                });
                 break;
             }
         }
@@ -63,7 +73,7 @@ var PelGameController = function PelGameController(settings) {
         _.forEach(_this.impactPoints.bottom, function(point, index) {
             if(index + 1 < _this.settings.gameSettings.paddleSpots) {
                 var np1 = _this.impactPoints.bottom[index +1];
-                var middleX = point.x + (np1.x - point.x /2);
+                var middleX = (np1.x - point.x /2);
                 _this.impactPoints.top.push({
                     x: middleX,
                     y: 0
@@ -73,8 +83,13 @@ var PelGameController = function PelGameController(settings) {
     };
 
     var nextFrame = function() {
+        gameView.eraseCanvas();
+        drawPaddleSpots();
+        setPaddlePosition(_this.paddlePosition);
         _this.balls[0].next();
         gameView.drawBall(_this.balls[0]);
+        drawImpactPoints();
+
         console.log("calculating next frame");
     };
     
