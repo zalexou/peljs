@@ -42,7 +42,7 @@ var PaddleSpot = function(index) {
 var Ball = function() {
     var _this = this;
     _this.id = guid();
-    _this.velocity = 1;
+    _this.velocity = 5;
     _this.trailCount = 5;
     _this.trailingBalls = [];
     var color = null;
@@ -57,8 +57,23 @@ var Ball = function() {
         if(!currentSlope) {
             return;
         }
-        _this.x += _this.velocity;
-        _this.y = _this.y + (_this.velocity * currentSlope);
+
+        var currentTarget = _.find(_this.flightPlan, function(point) {
+            return (_this.x < point.x)
+        });
+
+        var targetDist = Math.hypot(currentTarget.x - _this.x, currentTarget.y - _this.y);
+        var ratio = targetDist / _this.velocity;
+
+        var H = currentTarget.y - _this.y;
+        var h = H / ratio;
+
+        var L = currentTarget.x - _this.x;
+        var l = L / ratio;
+        _this.x += l;
+        _this.y += h;
+        //_this.x += _this.velocity;
+        //_this.y = _this.y + (_this.velocity * currentSlope);
         updateTrail();
     };
 
