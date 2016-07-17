@@ -79,7 +79,7 @@ var Ball = function() {
 
         var L = _this.currentTarget.x - _this.x;
         var l = L / ratio;
-        
+
         _this.x += l;
         _this.y += h;
         checkCollision();
@@ -89,7 +89,7 @@ var Ball = function() {
 
     var checkCollision = function() {
         //If next position passes a collision point on x axis (or stops right on it)
-        if(_this.x >= _this.previousTarget.x) {
+        if(_this.previousTarget && _this.x >= _this.previousTarget.x) {
             _this.eventQueue.push(createCollisionEvent());
         }
     };

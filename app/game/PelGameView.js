@@ -17,6 +17,7 @@ var PelGameView = function(settings) {
     var paddleLength = totalPaddleLength / paddleCount;
     
     _this.drawPaddleSpot = function(spot) {
+        _this.drawnSpots = [];
         var currentPaddleX = _this.margin + (spot.index * (paddleLength + _this.margin));
         var currentPaddleY = parseInt(_this.settings.canvasSettings.height) - _this.margin * 2 - spot.height;
         spot.x(currentPaddleX);

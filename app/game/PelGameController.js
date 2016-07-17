@@ -5,6 +5,9 @@ var PelGameController = function PelGameController(settings) {
     var _this = this;
     var ballFactory = new BallFactory();
     var scoreManager = new ScoreManager(settings);
+    var ballLauncher = new ObjectLauncher({
+        prob: 1.5
+    });
 
     _this.settings = settings;
     _this.context = settings.context;
@@ -30,7 +33,7 @@ var PelGameController = function PelGameController(settings) {
         setImpactPoints();
         setPaddlePosition(_this.paddlePosition);
         createBall();
-        drawBall();
+        drawBalls();
         listenEvents();
         //window.requestAnimationFrame(nextFrame);
         _this.gameLoopInterval = setInterval(nextFrame, _this.refreshRate);
@@ -86,10 +89,14 @@ var PelGameController = function PelGameController(settings) {
                 events = events.concat(ballEvents);
             }
         });
+
         handleEvents(events);
-        _.forEach(_this.balls, function(ball) {
-            gameView.drawBall(ball);
-        });
+        if(ballLauncher.launch()) {
+            createBall();
+        }
+
+        drawBalls();
+        console.log("Ball count : ", _this.balls.length)
         console.log("SCORE: "+ scoreManager.process());
     };
 
@@ -104,7 +111,7 @@ var PelGameController = function PelGameController(settings) {
     };
 
     var manageCollision = function(event) {
-        //Ball collision TODO REFACTOR
+        //Ball collision
         //Getting the objects to collide
         var colliders = {
             ball: _.find(event.eventData.objects, function(collidee) { return collidee["type"] == "Ball" }),
@@ -124,13 +131,14 @@ var PelGameController = function PelGameController(settings) {
             //The point of collision is on an active paddle
             if(_this.paddleSpots[_this.paddlePosition].impactPoint === colliders.point.data) {
                 scoreManager.addEvent(createScoreEvent(ScoreTypes.BALL_BOUNCING));
+                return;
             } else {
                 //The point of collision is on a empty paddle spot
                 if(_.find(_this.impactPoints.bottom, function(point) { return point === colliders.point.data})){
                     var ballIndex = _.indexOf(_this.balls, colliders.ball.data);
                     _this.balls.splice(ballIndex, 1);
                     delete colliders.ball.data.destroy();
-                    _this.balls = [];
+                    return;
                 }
             }
         };
@@ -158,8 +166,10 @@ var PelGameController = function PelGameController(settings) {
         }
     };
 
-    var drawBall = function() {
-        gameView.drawBall(_this.balls[0]);
+    var drawBalls = function() {
+        _.forEach(_this.balls, function(ball) {
+            gameView.drawBall(ball);
+        });
     };
 
     var manageKeydown = function(e) {
