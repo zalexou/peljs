@@ -3,12 +3,13 @@
  */
 var PelGameController = function PelGameController(settings) {
     var _this = this;
+    var ballFactory = new BallFactory();
     _this.settings = settings;
     _this.context = settings.context;
     _this.paddleSpots = [];
     _this.paddlePosition = 0;
     _this.gameLoopInterval = null;
-    _this.fps = 60;
+    _this.fps = 120;
     _this.refreshRate = 1000 / _this.fps;
     _this.impactPoints = {
         top: [],
@@ -29,6 +30,7 @@ var PelGameController = function PelGameController(settings) {
         createBall();
         drawBall();
         listenEvents();
+        //window.requestAnimationFrame(nextFrame);
         _this.gameLoopInterval = setInterval(nextFrame, _this.refreshRate);
     };
     
@@ -37,29 +39,17 @@ var PelGameController = function PelGameController(settings) {
     };
     
     var createBall = function() {
-        var ball = new Ball();
-        ball.x = 0;
-        ball.y = generateRandomInt(1, _this.paddleSpots[0].y() / 2);
-        var plan = [];
-        for(var i = 0; i < _this.impactPoints.bottom.length; i++) {
-            plan.push(_this.impactPoints.bottom[i]);
-            if(i < _this.impactPoints.top.length) {
-                plan.push(_this.impactPoints.top[i]);
-            } else {
-                //generating the random exit point in the plan
-                plan.push({
-                    x: parseInt(_this.settings.canvas.width),
-                    y: generateRandomInt(1, _this.paddleSpots[0].y())
-                });
-                break;
-            }
-        }
-        ball.flightPlan = plan;
-        ball.velocity = 12;
-        ball.radius = 6;
-        ball.color = 'green';
-        ball.init();
-        _this.balls.push(ball);
+        var config = {
+            maxEntryY:  _this.paddleSpots[0].y() / 2,
+            minEntryY: 1,
+            impactPoints: _this.impactPoints,
+            exitX: parseInt(_this.settings.canvas.width),
+            maxExitY: _this.paddleSpots[0].y() / 2,
+            minExitY: 1,
+            minVelocity: 3,
+            maxVelocity: 6
+        };
+        _this.balls.push(ballFactory.createRandomBall(config));
     };
     
     var setImpactPoints = function() {

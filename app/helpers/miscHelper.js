@@ -11,6 +11,10 @@ function guid() {
         s4() + '-' + s4() + s4() + s4();
 }
 
-function generateRandomInt(min, max) {
+function generateRandom(min, max) {
     return Math.random() * (max - min) + min;
+}
+
+function generateRandomInt(min, max) {
+    return Math.floor(generateRandom(min, max));
 }

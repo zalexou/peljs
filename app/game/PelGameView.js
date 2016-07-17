@@ -59,16 +59,20 @@ var PelGameView = function(settings) {
         });
     };
 
-    _this.drawBall = function(ball, opacity) {
+    _this.drawBall = function(ball, opacity, noStroke) {
         if(!opacity) opacity = 1;
         _this.context.beginPath();
         _this.context.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI, false);
-        _this.context.fillStyle = "rgba(0, 0, 0, "+opacity+")";
+        _this.context.fillStyle = "rgba("+ball.color.r+", "+ball.color.g+", "+ball.color.b+", "+opacity+")";
         _this.context.fill();
+        if(!noStroke) {
+            _this.context.strokeStyle = "black";
+            _this.context.stroke();
+        }
 
         _.forEach(ball.trailingBalls, function(ball, index) {
             var opacity = 1 - (0.2 * index);
-            _this.drawBall(ball, opacity);
+            _this.drawBall(ball, opacity, true);
         });
     };
 
