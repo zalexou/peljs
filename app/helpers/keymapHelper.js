@@ -1,6 +1,10 @@
 /**
  * Created by alex on 14/07/2016.
  */
+var EventTypes = {
+    OBJECT_COLLISION: 1
+};
+
 var KeyEvent = {
     CANCEL: 3,
     HELP: 6,

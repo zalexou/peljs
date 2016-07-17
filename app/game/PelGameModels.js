@@ -6,6 +6,7 @@ var PaddleSpot = function(index) {
     var x = null;
     var y = null;
     var length = null;
+    _this.impactPoint = null;
 
     _this.height = 10;
     _this.index = index;
@@ -48,33 +49,68 @@ var Ball = function() {
     var color = null;
     _this.x = 0;
     _this.y = null;
-
+    _this.previousSlope = null;
     _this.flightPlan = null;
-
     _this.target = null;
+    _this.eventQueue = [];
+    _this.currentTarget = null;
+    _this.previousTarget = null;
     _this.next = function() {
+        _this.eventQueue = [];
+        _this.previousTarget = _this.currentTarget;
+        _this.currentTarget = _.find(_this.flightPlan, function(point) {
+            return (_this.x < point.x)
+        });
+
+
         var currentSlope = getSlope();
         if(!currentSlope) {
             return;
         }
 
-        var currentTarget = _.find(_this.flightPlan, function(point) {
-            return (_this.x < point.x)
-        });
-
-        var targetDist = Math.hypot(currentTarget.x - _this.x, currentTarget.y - _this.y);
+        checkCollision(currentSlope);
+        _this.previousSlope = currentSlope;
+        var targetDist = Math.hypot(_this.currentTarget.x - _this.x, _this.currentTarget.y - _this.y);
         var ratio = targetDist / _this.velocity;
 
-        var H = currentTarget.y - _this.y;
+        var H = _this.currentTarget.y - _this.y;
         var h = H / ratio;
 
-        var L = currentTarget.x - _this.x;
+        var L = _this.currentTarget.x - _this.x;
         var l = L / ratio;
         _this.x += l;
         _this.y += h;
-        //_this.x += _this.velocity;
-        //_this.y = _this.y + (_this.velocity * currentSlope);
         updateTrail();
+        return _this.eventQueue;
+    };
+
+    var checkCollision = function(currentSlope) {
+        //If the slope changed its direction then we hit the collision point
+        if(_this.previousSlope < 0 && currentSlope > 0) {
+            _this.eventQueue.push(createCollisionEvent());
+        } else if (_this.previousSlope > 0 && currentSlope < 0) {
+            _this.eventQueue.push(createCollisionEvent());
+        }
+    };
+
+    var createCollisionEvent = function() {
+        var e = new Event();
+        e.eventType = EventTypes.OBJECT_COLLISION;
+        e.emitter = _this;
+        e.callback = function(){};
+        e.eventData = {
+            objects: [
+                {
+                    type: "Ball",
+                    data: _this
+                },
+                {
+                    type: "Point",
+                    data: _this.previousTarget
+                }
+            ]
+        };
+        return e;
     };
 
     var updateTrail = function() {
@@ -85,18 +121,22 @@ var Ball = function() {
     };
 
     var getSlope = function() {
-        //Getting the current slope the ball is following
-        var currentTarget = _.find(_this.flightPlan, function(point) {
-            return (_this.x < point.x)
-        })
-        if(!currentTarget) {
+        if(!_this.currentTarget) {
             return null;
         }
-        var slope = (_this.y - currentTarget.y) / (_this.x - currentTarget.x);
+        var slope = (_this.y - _this.currentTarget.y) / (_this.x - _this.currentTarget.x);
         return slope;
     };
 
     _this.init = function() {
 
     }
+};
+
+var Event = function() {
+    var _this = this;
+    _this.eventType = null;
+    _this.eventData = {};
+    _this.emitter = null;
+    _this.callback = null;
 };

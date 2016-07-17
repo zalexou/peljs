@@ -25,7 +25,6 @@ var PelGameController = function PelGameController(settings) {
         createPaddleSpots();
         drawPaddleSpots();
         setImpactPoints();
-        drawImpactPoints();
         setPaddlePosition(_this.paddlePosition);
         createBall();
         drawBall();
@@ -40,7 +39,7 @@ var PelGameController = function PelGameController(settings) {
     var createBall = function() {
         var ball = new Ball();
         ball.x = 0;
-        ball.y = generateRandomInt(1, _this.paddleSpots[0].y());
+        ball.y = generateRandomInt(1, _this.paddleSpots[0].y() / 2);
         var plan = [];
         for(var i = 0; i < _this.impactPoints.bottom.length; i++) {
             plan.push(_this.impactPoints.bottom[i]);
@@ -56,7 +55,7 @@ var PelGameController = function PelGameController(settings) {
             }
         }
         ball.flightPlan = plan;
-        ball.velocity = 1;
+        ball.velocity = 12;
         ball.radius = 6;
         ball.color = 'green';
         ball.init();
@@ -66,7 +65,9 @@ var PelGameController = function PelGameController(settings) {
     var setImpactPoints = function() {
         //Impact points on paddles
         _.forEach(_this.paddleSpots, function(spot) {
-            _this.impactPoints.bottom.push(spot.getCenter());
+            var point = spot.getCenter();
+            _this.impactPoints.bottom.push(point);
+            spot.impactPoint = point;
         });
 
         //Impact points at the top, one for each paddle space
@@ -83,14 +84,41 @@ var PelGameController = function PelGameController(settings) {
     };
 
     var nextFrame = function() {
+        var events = [];
         gameView.eraseCanvas();
         drawPaddleSpots();
         setPaddlePosition(_this.paddlePosition);
-        _this.balls[0].next();
+        var ballEvents = _this.balls[0].next();
+        if(ballEvents.length) {
+            events = events.concat(ballEvents);
+        }
+        handleEvents(events);
         gameView.drawBall(_this.balls[0]);
-        drawImpactPoints();
 
-        console.log("calculating next frame");
+    };
+
+    var handleEvents = function(events) {
+        _.forEach(events, function(e) {
+            switch(e.eventType) {
+                case EventTypes.OBJECT_COLLISION: {
+                    manageCollision(e);
+                }
+            }
+        });
+    };
+
+    var manageCollision = function(event) {
+        //Ball collision TODO REFACTOR
+        if(_.find(event.eventData.objects, function(collidee) { return collidee["type"] == "Ball" })) {
+            var impactPoint = _.find(event.eventData.objects, function(collidee) { return collidee["type"] == "Point" });
+            if(_this.paddleSpots[_this.paddlePosition].impactPoint === impactPoint.data) {
+                console.log("got it");
+            } else {
+                if(_.find(_this.impactPoints.bottom, function(point) { return point === impactPoint.data})){
+                    console.log("missed");
+                }
+            }
+        };
     };
     
     var createPaddleSpots = function() {
