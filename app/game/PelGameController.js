@@ -116,6 +116,8 @@ var PelGameController = function PelGameController(settings) {
             } else {
                 if(_.find(_this.impactPoints.bottom, function(point) { return point === impactPoint.data})){
                     console.log("missed");
+                    delete _this.balls[0].destroy();
+                    _this.balls = [];
                 }
             }
         };

@@ -128,9 +128,14 @@ var Ball = function() {
         return slope;
     };
 
+    _this.destroy = function() {
+        console.log("cya");
+        return _this;
+    };
+
     _this.init = function() {
 
-    }
+    };
 };
 
 var Event = function() {
