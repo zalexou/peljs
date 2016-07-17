@@ -2,7 +2,14 @@
  * Created by alex on 14/07/2016.
  */
 var EventTypes = {
-    OBJECT_COLLISION: 1
+    OBJECT_COLLISION: 1,
+    SCORE_UPDATE: 2
+};
+
+var ScoreTypes = {
+    BALL_BOUNCING: 1,
+    BALL_EXITING: 2,
+    BALL_DROPPING: 3
 };
 
 var KeyEvent = {

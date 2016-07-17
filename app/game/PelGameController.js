@@ -4,6 +4,8 @@
 var PelGameController = function PelGameController(settings) {
     var _this = this;
     var ballFactory = new BallFactory();
+    var scoreManager = new ScoreManager(settings);
+
     _this.settings = settings;
     _this.context = settings.context;
     _this.paddleSpots = [];
@@ -78,13 +80,17 @@ var PelGameController = function PelGameController(settings) {
         gameView.eraseCanvas();
         drawPaddleSpots();
         setPaddlePosition(_this.paddlePosition);
-        var ballEvents = _this.balls[0].next();
-        if(ballEvents.length) {
-            events = events.concat(ballEvents);
-        }
+        _.forEach(_this.balls, function(ball) {
+            var ballEvents = ball.next();
+            if(ballEvents.length) {
+                events = events.concat(ballEvents);
+            }
+        });
         handleEvents(events);
-        gameView.drawBall(_this.balls[0]);
-
+        _.forEach(_this.balls, function(ball) {
+            gameView.drawBall(ball);
+        });
+        console.log("SCORE: "+ scoreManager.process());
     };
 
     var handleEvents = function(events) {
@@ -99,18 +105,45 @@ var PelGameController = function PelGameController(settings) {
 
     var manageCollision = function(event) {
         //Ball collision TODO REFACTOR
-        if(_.find(event.eventData.objects, function(collidee) { return collidee["type"] == "Ball" })) {
-            var impactPoint = _.find(event.eventData.objects, function(collidee) { return collidee["type"] == "Point" });
-            if(_this.paddleSpots[_this.paddlePosition].impactPoint === impactPoint.data) {
-                console.log("got it");
+        //Getting the objects to collide
+        var colliders = {
+            ball: _.find(event.eventData.objects, function(collidee) { return collidee["type"] == "Ball" }),
+            point: _.find(event.eventData.objects, function(collidee) { return collidee["type"] == "Point" })
+        };
+
+        //Ball bouncing
+        if(colliders.ball) {
+            if(colliders.ball.data.flightPlan[colliders.ball.data.flightPlan.length-1] === colliders.point.data) {
+                //The point of collision is the last target of the ball, the ball is exiting
+                var ballIndex = _.indexOf(_this.balls, colliders.ball.data);
+                _this.balls.splice(ballIndex, 1);
+                delete colliders.ball.data.destroy();
+                scoreManager.addEvent(createScoreEvent(ScoreTypes.BALL_EXITING));
+                return;
+            }
+            //The point of collision is on an active paddle
+            if(_this.paddleSpots[_this.paddlePosition].impactPoint === colliders.point.data) {
+                scoreManager.addEvent(createScoreEvent(ScoreTypes.BALL_BOUNCING));
             } else {
-                if(_.find(_this.impactPoints.bottom, function(point) { return point === impactPoint.data})){
-                    console.log("missed");
-                    delete _this.balls[0].destroy();
+                //The point of collision is on a empty paddle spot
+                if(_.find(_this.impactPoints.bottom, function(point) { return point === colliders.point.data})){
+                    var ballIndex = _.indexOf(_this.balls, colliders.ball.data);
+                    _this.balls.splice(ballIndex, 1);
+                    delete colliders.ball.data.destroy();
                     _this.balls = [];
                 }
             }
         };
+    };
+
+    var createScoreEvent = function(scoreType) {
+        var event = new Event();
+        event.eventType = EventTypes.SCORE_UPDATE;
+        event.emitter = _this;
+        event.data = {
+            scoreType: scoreType
+        };
+        return event;
     };
     
     var createPaddleSpots = function() {

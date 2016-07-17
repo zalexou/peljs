@@ -68,8 +68,9 @@ var Ball = function() {
             return;
         }
 
-        checkCollision(currentSlope);
         _this.previousSlope = currentSlope;
+
+        //Thales
         var targetDist = Math.hypot(_this.currentTarget.x - _this.x, _this.currentTarget.y - _this.y);
         var ratio = targetDist / _this.velocity;
 
@@ -78,17 +79,17 @@ var Ball = function() {
 
         var L = _this.currentTarget.x - _this.x;
         var l = L / ratio;
+        
         _this.x += l;
         _this.y += h;
+        checkCollision();
         updateTrail();
         return _this.eventQueue;
     };
 
-    var checkCollision = function(currentSlope) {
-        //If the slope changed its direction then we hit the collision point
-        if(_this.previousSlope < 0 && currentSlope > 0) {
-            _this.eventQueue.push(createCollisionEvent());
-        } else if (_this.previousSlope > 0 && currentSlope < 0) {
+    var checkCollision = function() {
+        //If next position passes a collision point on x axis (or stops right on it)
+        if(_this.x >= _this.previousTarget.x) {
             _this.eventQueue.push(createCollisionEvent());
         }
     };
