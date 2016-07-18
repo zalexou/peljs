@@ -79,5 +79,20 @@ var PelGameView = function(settings) {
 
     _this.eraseCanvas = function() {
         _this.context.clearRect(0, 0, parseInt(_this.settings.canvasSettings.width), parseInt(_this.settings.canvasSettings.height));
+    };
+
+    _this.drawScore = function(score) {
+        var score = numberWithSeparator(score, '.');
+        _this.context.font="30px Verdana";
+        _this.context.fillStyle = "black";
+        _this.context.fillText("SCORE: "+score,10,50);
+
+    };
+
+    _this.drawMultiplier = function(multiplier) {
+        var score = numberWithSeparator(multiplier, ' ');
+        _this.context.font="30px Verdana";
+        _this.context.fillStyle = "black";
+        _this.context.fillText("X"+score,250,50);
     }
 };

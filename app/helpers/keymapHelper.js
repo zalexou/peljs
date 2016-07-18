@@ -9,7 +9,9 @@ var EventTypes = {
 var ScoreTypes = {
     BALL_BOUNCING: 1,
     BALL_EXITING: 2,
-    BALL_DROPPING: 3
+    BALL_DROPPING: 3,
+    MULTIPLIER_UP: 4,
+    MULTIPLIER_DOWN: 5
 };
 
 var KeyEvent = {

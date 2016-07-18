@@ -6,7 +6,6 @@ var ObjectLauncher = function(config) {
     _this.prob = config.prob;
     _this.launch = function() {
         var random = generateRandom(1, 100);
-        console.log("GOT ", random);
         if(random <= _this.prob) {
             return true;
         }

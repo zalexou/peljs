@@ -18,3 +18,9 @@ function generateRandom(min, max) {
 function generateRandomInt(min, max) {
     return Math.floor(generateRandom(min, max));
 }
+
+function numberWithSeparator(x, separator) {
+    if(typeof separator === "undefined")
+        separator = ".";
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+}

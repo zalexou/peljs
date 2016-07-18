@@ -21,6 +21,7 @@ var PelGameController = function PelGameController(settings) {
         bottom: []
     };
     _this.balls = [];
+    _this.consecutiveHits = 0;
     
 
 
@@ -80,6 +81,7 @@ var PelGameController = function PelGameController(settings) {
 
     var nextFrame = function() {
         var events = [];
+        scoreManager.setBonus(_this.balls.length);
         gameView.eraseCanvas();
         drawPaddleSpots();
         setPaddlePosition(_this.paddlePosition);
@@ -96,8 +98,8 @@ var PelGameController = function PelGameController(settings) {
         }
 
         drawBalls();
-        console.log("Ball count : ", _this.balls.length)
-        console.log("SCORE: "+ scoreManager.process());
+        gameView.drawScore(scoreManager.process());
+        gameView.drawMultiplier(scoreManager.multiplier);
     };
 
     var handleEvents = function(events) {
@@ -126,19 +128,23 @@ var PelGameController = function PelGameController(settings) {
                 _this.balls.splice(ballIndex, 1);
                 delete colliders.ball.data.destroy();
                 scoreManager.addEvent(createScoreEvent(ScoreTypes.BALL_EXITING));
-                return;
             }
             //The point of collision is on an active paddle
-            if(_this.paddleSpots[_this.paddlePosition].impactPoint === colliders.point.data) {
+            else if(_this.paddleSpots[_this.paddlePosition].impactPoint === colliders.point.data) {
                 scoreManager.addEvent(createScoreEvent(ScoreTypes.BALL_BOUNCING));
-                return;
+                if(_this.consecutiveHits === 10) {
+                    _this.consecutiveHits = 0;
+                    scoreManager.addEvent(createScoreEvent(ScoreTypes.MULTIPLIER_UP));
+                }
+                _this.consecutiveHits++;
             } else {
                 //The point of collision is on a empty paddle spot
                 if(_.find(_this.impactPoints.bottom, function(point) { return point === colliders.point.data})){
                     var ballIndex = _.indexOf(_this.balls, colliders.ball.data);
                     _this.balls.splice(ballIndex, 1);
                     delete colliders.ball.data.destroy();
-                    return;
+                    _this.consecutiveHits = 0;
+                    scoreManager.addEvent(createScoreEvent(ScoreTypes.MULTIPLIER_DOWN));
                 }
             }
         };
