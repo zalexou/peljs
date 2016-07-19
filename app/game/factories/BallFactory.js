@@ -29,7 +29,6 @@ var BallFactory = function() {
             g: generateRandomInt(0, 256),
             b: generateRandomInt(0, 256)
         };
-        console.log(ball.color);
         ball.init();
         return ball;
     };

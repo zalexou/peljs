@@ -62,7 +62,7 @@ var Ball = function() {
             return (_this.x < point.x)
         });
 
-        var coord = getNextCoordinates(_this.currentTarget);
+        var coord = getNextCoordinates({x: _this.x, y: _this.y} , _this.currentTarget, _this.velocity);
         _this.x = coord.x;
         _this.y = coord.y;
         checkCollision();
@@ -70,20 +70,20 @@ var Ball = function() {
         return _this.eventQueue;
     };
 
-    var getNextCoordinates = function (target) {
+    var getNextCoordinates = function (point, target, velocity) {
         //Thales
-        var targetDist = Math.hypot(target.x - _this.x, target.y - _this.y);
-        var ratio = targetDist / _this.velocity;
+        var targetDist = Math.hypot(target.x - point.x, target.y - point.y);
+        var ratio = targetDist / velocity;
 
-        var H = _this.currentTarget.y - _this.y;
+        var H = target.y - point.y;
         var h = H / ratio;
 
-        var L = _this.currentTarget.x - _this.x;
+        var L = target.x - point.x;
         var l = L / ratio;
 
         var nextCoordinates = {
-            x: _this.x + l,
-            y: _this.y + h
+            x: point.x + l,
+            y: point.y + h
         };
 
         return nextCoordinates;
@@ -125,7 +125,29 @@ var Ball = function() {
 
     var getCollisionFrames = function() {
         //returns the relative frames at which a collision with a paddle will occur
-
+        var frames = [];
+        var paddleHitPoints = _.filter(_this.flightPlan, function(point, index) {
+            if(index % 2 === 0) {
+                return true;
+            }
+        });
+        _.each(paddleHitPoints, function(point) {
+            var ballPosition = {
+                x: _this.x,
+                y: _this.y
+            };
+            var count = 1;
+            var hit = false;
+            while(!hit || count > 1000) {
+                ballPosition = getNextCoordinates(ballPosition, point, _this.velocity);
+                if(ballPosition.x >= point.x) {
+                    hit = true;
+                    frames.push(count + frameCount);
+                }
+                count++;
+            }
+        });
+        return frames;
     };
 
     _this.destroy = function() {
@@ -133,7 +155,9 @@ var Ball = function() {
     };
 
     _this.init = function() {
-        //returns the planned frame where the ball will hit a paddle
+        _this.currentTarget = _this.flightPlan[0];
+        _this.collisionFrames = getCollisionFrames();
+        return _this;
     };
 };
 

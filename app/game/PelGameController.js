@@ -1,6 +1,8 @@
 /**
  * Created by alex on 14/07/2016.
  */
+var frameCount = 0;
+
 var PelGameController = function PelGameController(settings) {
     var _this = this;
     var ballFactory, scoreManager,  ballLauncher;
@@ -19,7 +21,7 @@ var PelGameController = function PelGameController(settings) {
     _this.balls = [];
     _this.consecutiveHits = 0;
     _this.hitFrames = [];
-    
+
 
 
     var gameView = new PelGameView(settings);
@@ -34,7 +36,7 @@ var PelGameController = function PelGameController(settings) {
         ballFactory = new BallFactory();
         scoreManager = new ScoreManager(settings);
         ballLauncher = new ObjectLauncher({
-            prob: 1.5,
+            prob: 2,
             canLaunch: ballIsPlayable,
             create: createBall
         });
@@ -48,6 +50,18 @@ var PelGameController = function PelGameController(settings) {
     };
     
     var ballIsPlayable = function(ball) {
+        for(var i = 0; i < ball.collisionFrames.length; i++) {
+            var tmp = ball.collisionFrames[i];
+            var willCollide =_.find(_this.hitFrames, function(frame) {
+                if(_.inRange(tmp, frame - 120, frame + 120)) {
+                    console.log(" CANCELLED FOR ",tmp, frame - 30, frame + 30)
+                    return true;
+                }
+            });
+            if(willCollide) {
+                return false;
+            }
+        }
         return true;
     };
 
@@ -88,6 +102,7 @@ var PelGameController = function PelGameController(settings) {
 
     var nextFrame = function() {
         var events = [];
+        _this.hitFrames = [];
         scoreManager.setBonus(_this.balls.length);
         gameView.eraseCanvas();
         drawPaddleSpots();
@@ -97,8 +112,9 @@ var PelGameController = function PelGameController(settings) {
             if(ballEvents.length) {
                 events = events.concat(ballEvents);
             }
+            _this.hitFrames = _this.hitFrames.concat(ball.collisionFrames);
         });
-
+        _this.hitFrames = _.uniq(_this.hitFrames);
         handleEvents(events);
 
         var potentialBall = ballLauncher.launch();
@@ -109,6 +125,7 @@ var PelGameController = function PelGameController(settings) {
         drawBalls();
         gameView.drawScore(scoreManager.process());
         gameView.drawMultiplier(scoreManager.multiplier);
+        frameCount++;
     };
 
     var handleEvents = function(events) {

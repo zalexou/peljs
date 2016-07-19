@@ -14,8 +14,13 @@ var ObjectLauncher = function(config) {
 
     _this.launch = function() {
         var random = generateRandom(1, 100);
-        if(random <= _this.prob && _this.canLaunch()) {
-            return _this.create();
+        if(random <= _this.prob ) {
+            var launchee = _this.create();
+            if(_this.canLaunch(launchee)) {
+                return launchee;
+            } else {
+                console.log('LAUNCH CANCELLED');
+            }
         }
         return false;
     };
