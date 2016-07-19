@@ -3,11 +3,7 @@
  */
 var PelGameController = function PelGameController(settings) {
     var _this = this;
-    var ballFactory = new BallFactory();
-    var scoreManager = new ScoreManager(settings);
-    var ballLauncher = new ObjectLauncher({
-        prob: 1.5
-    });
+    var ballFactory, scoreManager,  ballLauncher;
 
     _this.settings = settings;
     _this.context = settings.context;
@@ -22,6 +18,7 @@ var PelGameController = function PelGameController(settings) {
     };
     _this.balls = [];
     _this.consecutiveHits = 0;
+    _this.hitFrames = [];
     
 
 
@@ -34,22 +31,26 @@ var PelGameController = function PelGameController(settings) {
     };
     
     _this.go = function() {
-        console.log('game launching');
+        ballFactory = new BallFactory();
+        scoreManager = new ScoreManager(settings);
+        ballLauncher = new ObjectLauncher({
+            prob: 1.5,
+            canLaunch: ballIsPlayable,
+            create: createBall
+        });
         createPaddleSpots();
         drawPaddleSpots();
         setImpactPoints();
         setPaddlePosition(_this.paddlePosition);
-        createBall();
-        drawBalls();
         listenEvents();
         //window.requestAnimationFrame(nextFrame);
         _this.gameLoopInterval = setInterval(nextFrame, _this.refreshRate);
     };
     
-    var drawImpactPoints = function() {
-        gameView.drawImpactPoints(_this.impactPoints);
+    var ballIsPlayable = function(ball) {
+        return true;
     };
-    
+
     var createBall = function() {
         var config = {
             maxEntryY:  _this.paddleSpots[0].y() / 2,
@@ -61,7 +62,7 @@ var PelGameController = function PelGameController(settings) {
             minVelocity: 3,
             maxVelocity: 6
         };
-        _this.balls.push(ballFactory.createRandomBall(config));
+        return ballFactory.createRandomBall(config);
     };
     
     var setImpactPoints = function() {
@@ -99,8 +100,10 @@ var PelGameController = function PelGameController(settings) {
         });
 
         handleEvents(events);
-        if(ballLauncher.launch()) {
-            createBall();
+
+        var potentialBall = ballLauncher.launch();
+        if(potentialBall) {
+            _this.balls.push(potentialBall);
         }
 
         drawBalls();

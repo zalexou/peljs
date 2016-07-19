@@ -62,16 +62,17 @@ var Ball = function() {
             return (_this.x < point.x)
         });
 
+        var coord = getNextCoordinates(_this.currentTarget);
+        _this.x = coord.x;
+        _this.y = coord.y;
+        checkCollision();
+        updateTrail();
+        return _this.eventQueue;
+    };
 
-        var currentSlope = getSlope();
-        if(!currentSlope) {
-            return;
-        }
-
-        _this.previousSlope = currentSlope;
-
+    var getNextCoordinates = function (target) {
         //Thales
-        var targetDist = Math.hypot(_this.currentTarget.x - _this.x, _this.currentTarget.y - _this.y);
+        var targetDist = Math.hypot(target.x - _this.x, target.y - _this.y);
         var ratio = targetDist / _this.velocity;
 
         var H = _this.currentTarget.y - _this.y;
@@ -80,11 +81,12 @@ var Ball = function() {
         var L = _this.currentTarget.x - _this.x;
         var l = L / ratio;
 
-        _this.x += l;
-        _this.y += h;
-        checkCollision();
-        updateTrail();
-        return _this.eventQueue;
+        var nextCoordinates = {
+            x: _this.x + l,
+            y: _this.y + h
+        };
+
+        return nextCoordinates;
     };
 
     var checkCollision = function() {
@@ -121,21 +123,17 @@ var Ball = function() {
         _this.trailingBalls = _this.trailingBalls.slice(0, _this.trailCount);
     };
 
-    var getSlope = function() {
-        if(!_this.currentTarget) {
-            return null;
-        }
-        var slope = (_this.y - _this.currentTarget.y) / (_this.x - _this.currentTarget.x);
-        return slope;
+    var getCollisionFrames = function() {
+        //returns the relative frames at which a collision with a paddle will occur
+
     };
 
     _this.destroy = function() {
-        console.log("cya");
         return _this;
     };
 
     _this.init = function() {
-
+        //returns the planned frame where the ball will hit a paddle
     };
 };
 
