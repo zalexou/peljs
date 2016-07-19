@@ -26,6 +26,12 @@ var PelGameController = function PelGameController(settings) {
 
 
     var gameView = new PelGameView(settings);
+
+    _this.stop = function() {
+        clearInterval(_this.gameLoopInterval);
+        gameView.eraseCanvas();
+        return _this;
+    };
     
     _this.go = function() {
         console.log('game launching');

@@ -12,9 +12,10 @@ angular.module('pel.view1', ['ngRoute'])
     .controller('View1Ctrl', function($scope, globalVarsService) {
         $scope.canvasStyle = {};
         $scope.displayText = {
-            launch: "Launch game"
+            launch: "Launch game",
+            stop: "Stop game"
         };
-
+        var gameController = null;
         var canvas = null, context = null;
 
         var initCanvas = function initCanvas() {
@@ -56,7 +57,7 @@ angular.module('pel.view1', ['ngRoute'])
                 commInterface: $scope.commInterface
             };
 
-            var gameController = new PelGameController(pelGameConfig);
+            gameController = new PelGameController(pelGameConfig);
             gameController.go();
             
         };
@@ -65,4 +66,10 @@ angular.module('pel.view1', ['ngRoute'])
         $scope.launchGame = function() {
             initGameController();
         };
+
+        $scope.stopGame = function() {
+            //Dereferences the game controller
+            gameController.stop();
+            gameController = null;
+        }
     });

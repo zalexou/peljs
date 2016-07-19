@@ -5,7 +5,7 @@ angular.module('pel').service('globalVarsService', function() {
 
     var getCanvasVars = function() {
         return {
-            height: "800px",
+            height: "650px",
             width: "500px",
             backgroundColor: "#000000"
         }
