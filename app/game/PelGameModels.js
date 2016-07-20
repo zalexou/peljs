@@ -58,10 +58,8 @@ var Ball = function() {
     _this.next = function() {
         _this.eventQueue = [];
         _this.previousTarget = _this.currentTarget;
-        _this.currentTarget = _.find(_this.flightPlan, function(point) {
-            console.log('target acquired ',point)
-            return (_this.x < point.x)
-        });
+
+        _this.currentTarget = pickTarget();
 
         var coord = getNextCoordinates({x: _this.x, y: _this.y} , _this.currentTarget, _this.velocity);
         _this.x = coord.x;
@@ -69,6 +67,20 @@ var Ball = function() {
         checkCollision();
         updateTrail();
         return _this.eventQueue;
+    };
+
+    var pickTarget = function() {
+        var previous = null;
+        var pick = null;
+        for(var i = 0; i < _this.flightPlan.length; i++) {
+            if( _this.x > _this.flightPlan[i].x) {
+                previous = _this.flightPlan[i];
+            } else {
+                pick = _this.flightPlan[i];
+                break;
+            }
+        }
+        return pick;
     };
 
     var getNextCoordinates = function (point, target, velocity) {
@@ -93,7 +105,7 @@ var Ball = function() {
     var checkCollision = function() {
         //If next position passes a collision point on x axis (or stops right on it)
         if(_this.previousTarget && Math.floor(_this.x) >= Math.floor(_this.previousTarget.x)) {
-            console.log("collision between ",_this,_this.previousTarget)
+            //console.log("collision between ",_this,_this.previousTarget)
             _this.eventQueue.push(createCollisionEvent());
         }
     };
