@@ -59,6 +59,7 @@ var Ball = function() {
         _this.eventQueue = [];
         _this.previousTarget = _this.currentTarget;
         _this.currentTarget = _.find(_this.flightPlan, function(point) {
+            console.log('target acquired ',point)
             return (_this.x < point.x)
         });
 
@@ -91,7 +92,8 @@ var Ball = function() {
 
     var checkCollision = function() {
         //If next position passes a collision point on x axis (or stops right on it)
-        if(_this.previousTarget && _this.x >= _this.previousTarget.x) {
+        if(_this.previousTarget && Math.floor(_this.x) >= Math.floor(_this.previousTarget.x)) {
+            console.log("collision between ",_this,_this.previousTarget)
             _this.eventQueue.push(createCollisionEvent());
         }
     };

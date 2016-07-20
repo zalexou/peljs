@@ -36,7 +36,7 @@ var PelGameController = function PelGameController(settings) {
         ballFactory = new BallFactory();
         scoreManager = new ScoreManager(settings);
         ballLauncher = new ObjectLauncher({
-            prob: 2,
+            prob: 1.2,
             canLaunch: ballIsPlayable,
             create: createBall
         });
@@ -53,8 +53,7 @@ var PelGameController = function PelGameController(settings) {
         for(var i = 0; i < ball.collisionFrames.length; i++) {
             var tmp = ball.collisionFrames[i];
             var willCollide =_.find(_this.hitFrames, function(frame) {
-                if(_.inRange(tmp, frame - 120, frame + 120)) {
-                    console.log(" CANCELLED FOR ",tmp, frame - 30, frame + 30)
+                if(_.inRange(tmp, frame - 30, frame + 30)) {
                     return true;
                 }
             });
@@ -163,6 +162,7 @@ var PelGameController = function PelGameController(settings) {
                     scoreManager.addEvent(createScoreEvent(ScoreTypes.MULTIPLIER_UP));
                 }
                 _this.consecutiveHits++;
+                console.log("hit at frame " ,frameCount);
             } else {
                 //The point of collision is on a empty paddle spot
                 if(_.find(_this.impactPoints.bottom, function(point) { return point === colliders.point.data})){
@@ -171,6 +171,7 @@ var PelGameController = function PelGameController(settings) {
                     delete colliders.ball.data.destroy();
                     _this.consecutiveHits = 0;
                     scoreManager.addEvent(createScoreEvent(ScoreTypes.MULTIPLIER_DOWN));
+                    console.log("miss at frame " ,frameCount);
                 }
             }
         };
