@@ -137,30 +137,46 @@ var Ball = function() {
         _this.trailingBalls = _this.trailingBalls.slice(0, _this.trailCount);
     };
 
-    var getCollisionFrames = function() {
-        //returns the relative frames at which a collision with a paddle will occur
+    var getCollisionPrediction = function(points, start) {
         var frames = [];
-        var paddleHitPoints = _.filter(_this.flightPlan, function(point, index) {
-            if(index % 2 === 0) {
-                return true;
-            }
-        });
-        _.each(paddleHitPoints, function(point) {
-            var ballPosition = {
-                x: _this.x,
-                y: _this.y
-            };
-            var count = 1;
+        var count = 1;
+        var ballPosition = start || {x: _this.x, y: _this.y};
+        _.each(points, function(point) {
             var hit = false;
-            while(!hit || count > 1000) {
+            while(!hit && count < 1000) {
                 ballPosition = getNextCoordinates(ballPosition, point, _this.velocity);
                 if(ballPosition.x >= point.x) {
                     hit = true;
                     frames.push(count + frameCount);
                 }
                 count++;
+                if(count > 1000) {
+                    console.log('ABORT');
+                }
             }
         });
+        return frames;
+    };
+
+    var getReboundFrames = function() {
+        //returns the frames at which the ball will bounce off the top
+        var reboundFrames = _.filter(_this.hitPlan, function(frame, index) {
+            return (index % 2 !== 0);
+        });
+        return reboundFrames;
+
+    };
+
+    var getCollisionFrames = function() {
+        //Collision frames are the frames at which a collision with a paddle will occur
+        var collisionFrames = _.filter(_this.hitPlan, function(frame, index) {
+            return (index % 2 === 0);
+        });
+        return collisionFrames;
+    };
+
+    var hitPlan = function() {
+        var frames = getCollisionPrediction(_this.flightPlan);
         return frames;
     };
 
@@ -170,7 +186,9 @@ var Ball = function() {
 
     _this.init = function() {
         _this.currentTarget = _this.flightPlan[0];
+        _this.hitPlan = hitPlan();
         _this.collisionFrames = getCollisionFrames();
+        _this.reboundFrames = getReboundFrames();
         return _this;
     };
 };

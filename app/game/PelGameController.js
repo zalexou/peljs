@@ -36,7 +36,7 @@ var PelGameController = function PelGameController(settings) {
         ballFactory = new BallFactory();
         scoreManager = new ScoreManager(settings);
         ballLauncher = new ObjectLauncher({
-            prob: 1.2,
+            prob: 1.5,
             canLaunch: ballIsPlayable,
             create: createBall
         });
@@ -45,15 +45,19 @@ var PelGameController = function PelGameController(settings) {
         setImpactPoints();
         setPaddlePosition(_this.paddlePosition);
         listenEvents();
+        //_this.balls.push(createBall().init());
+
         //window.requestAnimationFrame(nextFrame);
         _this.gameLoopInterval = setInterval(nextFrame, _this.refreshRate);
     };
     
     var ballIsPlayable = function(ball) {
+        console.log("searching throught frames ", _this.hitFrames);
         for(var i = 0; i < ball.collisionFrames.length; i++) {
             var tmp = ball.collisionFrames[i];
             var willCollide =_.find(_this.hitFrames, function(frame) {
                 if(_.inRange(tmp, frame - 30, frame + 30)) {
+                    console.log("frame "+frame );
                     return true;
                 }
             });
@@ -113,6 +117,7 @@ var PelGameController = function PelGameController(settings) {
             }
             _this.hitFrames = _this.hitFrames.concat(ball.collisionFrames);
         });
+
         _this.hitFrames = _.uniq(_this.hitFrames);
         handleEvents(events);
 
@@ -162,7 +167,7 @@ var PelGameController = function PelGameController(settings) {
                     scoreManager.addEvent(createScoreEvent(ScoreTypes.MULTIPLIER_UP));
                 }
                 _this.consecutiveHits++;
-                console.log("hit at frame " ,frameCount);
+                //console.log("hit at frame " ,frameCount);
             } else {
                 //The point of collision is on a empty paddle spot
                 if(_.find(_this.impactPoints.bottom, function(point) { return point === colliders.point.data})){
@@ -171,7 +176,7 @@ var PelGameController = function PelGameController(settings) {
                     delete colliders.ball.data.destroy();
                     _this.consecutiveHits = 0;
                     scoreManager.addEvent(createScoreEvent(ScoreTypes.MULTIPLIER_DOWN));
-                    console.log("miss at frame " ,frameCount);
+                    //console.log("miss at frame " ,frameCount);
                 }
             }
         };
