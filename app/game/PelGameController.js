@@ -36,7 +36,7 @@ var PelGameController = function PelGameController(settings) {
         ballFactory = new BallFactory();
         scoreManager = new ScoreManager(settings);
         ballLauncher = new ObjectLauncher({
-            prob: 1.5,
+            prob: 2,
             canLaunch: ballIsPlayable,
             create: createBall
         });
@@ -56,7 +56,7 @@ var PelGameController = function PelGameController(settings) {
         for(var i = 0; i < ball.collisionFrames.length; i++) {
             var tmp = ball.collisionFrames[i];
             var willCollide =_.find(_this.hitFrames, function(frame) {
-                if(_.inRange(tmp, frame - 30, frame + 30)) {
+                if(_.inRange(tmp, frame - 15, frame + 15)) {
                     console.log("frame "+frame );
                     return true;
                 }

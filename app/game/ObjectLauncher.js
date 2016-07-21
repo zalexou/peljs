@@ -4,6 +4,8 @@
 var ObjectLauncher = function(config) {
     var _this = this;
     _this.prob = config.prob;
+    var successfulLaunches = 0;
+    var cancelledLaunches = 0;
     _this.launchCondition = function(callback) {
         return callback && callback();
     };
@@ -17,10 +19,13 @@ var ObjectLauncher = function(config) {
         if(random <= _this.prob ) {
             var launchee = _this.create();
             if(_this.canLaunch(launchee)) {
+                successfulLaunches++;
                 return launchee;
             } else {
-                console.log('LAUNCH CANCELLED');
+                cancelledLaunches++;
             }
+            console.log("successful launches ", successfulLaunches);
+            console.log("cancelled launches ", cancelledLaunches);
         }
         return false;
     };
