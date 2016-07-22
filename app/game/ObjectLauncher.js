@@ -23,9 +23,10 @@ var ObjectLauncher = function(config) {
                 return launchee;
             } else {
                 cancelledLaunches++;
+                return null;
             }
-            console.log("successful launches ", successfulLaunches);
-            console.log("cancelled launches ", cancelledLaunches);
+            //console.log("successful launches ", successfulLaunches);
+            //console.log("cancelled launches ", cancelledLaunches);
         }
         return false;
     };
