@@ -70,6 +70,8 @@ var PelGameController = function PelGameController(settings) {
             });
             if(willCollide) {
                 return false;
+            } else {
+                console.log("Clear: frame "+ball.collisionFrames[i]+" - ",_this.hitFrames)
             }
         }
         return true;
