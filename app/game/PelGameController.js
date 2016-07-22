@@ -52,12 +52,10 @@ var PelGameController = function PelGameController(settings) {
     };
     
     var ballIsPlayable = function(ball) {
-        console.log("searching throught frames ", _this.hitFrames);
         for(var i = 0; i < ball.collisionFrames.length; i++) {
             var tmp = ball.collisionFrames[i];
             var willCollide =_.find(_this.hitFrames, function(frame) {
                 if(_.inRange(tmp, frame - 15, frame + 15)) {
-                    console.log("frame "+frame );
                     return true;
                 }
             });
