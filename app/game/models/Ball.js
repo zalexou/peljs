@@ -65,9 +65,10 @@ var Ball = function() {
 
     var checkCollision = function() {
         //If next position passes a collision point on x axis (or stops right on it)
-        if(_this.previousTarget && Math.floor(_this.x) >= Math.floor(_this.previousTarget.x)) {
+        if(_this.currentTarget && Math.floor(_this.x) >= Math.floor(_this.currentTarget.x)) {
             //console.log("collision between ",_this,_this.previousTarget)
             _this.eventQueue.push(createCollisionEvent());
+            console.log("creation d'une collision event position ", _this.x);
         }
     };
 
