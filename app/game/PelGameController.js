@@ -21,8 +21,6 @@ var PelGameController = function PelGameController(settings) {
     _this.balls = [];
     _this.consecutiveHits = 0;
     _this.hitFrames = [];
-    _this.collectedImpactFrames = [];
-
 
 
     var gameView = new PelGameView(settings);
@@ -37,14 +35,6 @@ var PelGameController = function PelGameController(settings) {
     _this.stop = function() {
         clearInterval(_this.gameLoopInterval);
         gameView.eraseCanvas();
-        console.log(_this.collectedImpactFrames);
-        _.forEach(_this.collectedImpactFrames, function(frame, index) {
-            if(_this.collectedImpactFrames[index+1]) {
-                if(_this.collectedImpactFrames[index+1] - frame < 30) {
-                    console.log("Illegal impact detected at frame ", _this.collectedImpactFrames[index+1], "delta: "+(_this.collectedImpactFrames[index+1] - frame));
-                }
-            }
-        });
         return _this;
     };
     
@@ -136,8 +126,6 @@ var PelGameController = function PelGameController(settings) {
         var potentialBall = ballLauncher.launch();
         if(potentialBall) {
             _this.balls.push(potentialBall);
-            console.log("new ball's hit plan ", potentialBall.hitPlan);
-            console.log("current hit frames ", _this.hitFrames);
         }
 
         drawBalls();
@@ -181,7 +169,6 @@ var PelGameController = function PelGameController(settings) {
                     scoreManager.addEvent(createScoreEvent(ScoreTypes.MULTIPLIER_UP));
                 }
                 _this.consecutiveHits++;
-                _this.collectedImpactFrames.push(frameCount);
                 console.log("hit at frame " ,frameCount);
             } else {
                 //The point of collision is on a empty paddle spot
@@ -192,7 +179,6 @@ var PelGameController = function PelGameController(settings) {
                     _this.consecutiveHits = 0;
                     scoreManager.addEvent(createScoreEvent(ScoreTypes.MULTIPLIER_DOWN));
                     //console.log("miss at frame " ,frameCount);
-                    _this.collectedImpactFrames.push(frameCount);
                 }
             }
         };

@@ -18,14 +18,11 @@ var ObjectLauncher = function(config) {
     _this.launch = function() {
         var random = generateRandom(1, 100);
         if(random <= _this.prob ) {
-            console.log("successful launches ", successfulLaunches);
-            console.log("cancelled launches ", cancelledLaunches);
             var launchee = getLaunchableObject();
             if(launchee){
                 successfulLaunches++;
                 return launchee;
             } else {
-                console.log("CANCEL")
                 cancelledLaunches++;
                 return null;
             }
@@ -37,11 +34,9 @@ var ObjectLauncher = function(config) {
         for(var i = 0; i < maxTries; i++) {
             var launchee = _this.create();
             if(_this.canLaunch(launchee)) {
-                console.log("Got launchable after "+i+" tries")
                 return launchee;
             }
         }
-        console.log("Couldnt get launchable after "+maxTries+" tries")
         return null;
     }
 };
