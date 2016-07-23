@@ -103,14 +103,14 @@ var Ball = function() {
         var ballPosition = start || {x: _this.x, y: _this.y};
         _.each(points, function(point) {
             var hit = false;
-            while(!hit && count < 1000) {
+            while(!hit && count < 6000) {
                 ballPosition = getNextCoordinates(ballPosition, point, _this.velocity);
                 if(ballPosition.x >= point.x) {
                     hit = true;
                     frames.push(count + frameCount);
                 }
                 count++;
-                if(count > 1000) {
+                if(count >= 6000) {
                     console.log('ABORT');
                 }
             }

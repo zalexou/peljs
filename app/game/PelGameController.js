@@ -27,6 +27,13 @@ var PelGameController = function PelGameController(settings) {
 
     var gameView = new PelGameView(settings);
 
+    _this.manualLaunchBall = function() {
+        var ball = createBall().init();
+        _this.balls.push(ball);
+        console.log("Ball collisions: ", ball.collisionFrames);
+        
+    };
+
     _this.stop = function() {
         clearInterval(_this.gameLoopInterval);
         gameView.eraseCanvas();
@@ -62,16 +69,12 @@ var PelGameController = function PelGameController(settings) {
     
     var ballIsPlayable = function(ball) {
         for(var i = 0; i < ball.collisionFrames.length; i++) {
-            var tmp = ball.collisionFrames[i];
-            var willCollide =_.find(_this.hitFrames, function(frame) {
-                if(_.inRange(tmp, frame - 15, frame + 15)) {
-                    return true;
+            var ballFrame = ball.collisionFrames[i];
+            for(var j = 0; j < _this.hitFrames.length; j++) {
+                var scheduledFrame = _this.hitFrames[j];
+                if(scheduledFrame - 30 <= ballFrame && scheduledFrame +30 >= ballFrame) {
+                    return false;
                 }
-            });
-            if(willCollide) {
-                return false;
-            } else {
-                console.log("Clear: frame "+ball.collisionFrames[i]+" - ",_this.hitFrames)
             }
         }
         return true;
@@ -179,7 +182,7 @@ var PelGameController = function PelGameController(settings) {
                 }
                 _this.consecutiveHits++;
                 _this.collectedImpactFrames.push(frameCount);
-                //console.log("hit at frame " ,frameCount);
+                console.log("hit at frame " ,frameCount);
             } else {
                 //The point of collision is on a empty paddle spot
                 if(_.find(_this.impactPoints.bottom, function(point) { return point === colliders.point.data})){

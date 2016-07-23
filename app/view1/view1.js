@@ -13,7 +13,8 @@ angular.module('pel.view1', ['ngRoute'])
         $scope.canvasStyle = {};
         $scope.displayText = {
             launch: "Launch game",
-            stop: "Stop game"
+            stop: "Stop game",
+            launchBall: "Launch ball",
         };
         var gameController = null;
         var canvas = null, context = null;
@@ -71,5 +72,9 @@ angular.module('pel.view1', ['ngRoute'])
             //Dereferences the game controller
             gameController.stop();
             gameController = null;
+        };
+
+        $scope.launchBall = function() {
+            gameController.manualLaunchBall();
         }
     });
