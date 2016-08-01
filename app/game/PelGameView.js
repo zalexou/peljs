@@ -63,7 +63,7 @@ var PelGameView = function(settings) {
     _this.drawBall = function(ball, opacity, noStroke) {
         if(!opacity) opacity = 1;
         _this.context.beginPath();
-        _this.context.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI, false);
+        _this.context.arc(Math.round(ball.x), Math.round(ball.y), ball.radius, 0, 2 * Math.PI, false);
         _this.context.fillStyle = "rgba("+ball.color.r+", "+ball.color.g+", "+ball.color.b+", "+opacity+")";
         _this.context.fill();
         if(!noStroke) {

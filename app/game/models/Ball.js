@@ -3,6 +3,7 @@
  */
 var Ball = function() {
     var _this = this;
+    _this.location = new LocationHelper(_this);
     _this.id = guid();
     _this.velocity = 5;
     _this.trailCount = 5;
@@ -20,52 +21,19 @@ var Ball = function() {
         _this.eventQueue = [];
         _this.previousTarget = _this.currentTarget;
 
-        _this.currentTarget = pickTarget();
+        _this.currentTarget = _this.location.pickTarget();
 
-        var coord = getNextCoordinates({x: _this.x, y: _this.y} , _this.currentTarget, _this.velocity);
+        var coord = _this.location.getNextCoordinates({x: _this.x, y: _this.y} , _this.currentTarget, _this.velocity);
         _this.x = coord.x;
         _this.y = coord.y;
-        checkCollision();
+        handleCollision();
         updateTrail();
         return _this.eventQueue;
     };
 
-    var pickTarget = function() {
-        var previous = null;
-        var pick = null;
-        for(var i = 0; i < _this.flightPlan.length; i++) {
-            if( _this.x > _this.flightPlan[i].x) {
-                previous = _this.flightPlan[i];
-            } else {
-                pick = _this.flightPlan[i];
-                break;
-            }
-        }
-        return pick;
-    };
-
-    var getNextCoordinates = function (point, target, velocity) {
-        //Thales
-        var targetDist = Math.hypot(target.x - point.x, target.y - point.y);
-        var ratio = targetDist / velocity;
-
-        var H = target.y - point.y;
-        var h = H / ratio;
-
-        var L = target.x - point.x;
-        var l = L / ratio;
-
-        var nextCoordinates = {
-            x: point.x + l,
-            y: point.y + h
-        };
-
-        return nextCoordinates;
-    };
-
-    var checkCollision = function() {
+    var handleCollision = function() {
         //If next position passes a collision point on x axis (or stops right on it)
-        if(_this.currentTarget && Math.floor(_this.x) >= Math.floor(_this.currentTarget.x)) {
+        if(_this.location.checkCollision()) {
             _this.eventQueue.push(createCollisionEvent());
         }
     };
@@ -96,59 +64,18 @@ var Ball = function() {
         _this.trailingBalls.unshift(copy);
         _this.trailingBalls = _this.trailingBalls.slice(0, _this.trailCount);
     };
-
-    var getCollisionPrediction = function(points, start) {
-        var frames = [];
-        var count = 1;
-        var ballPosition = start || {x: _this.x, y: _this.y};
-        _.each(points, function(point) {
-            var hit = false;
-            while(!hit && count < 6000) {
-                ballPosition = getNextCoordinates(ballPosition, point, _this.velocity);
-                if(ballPosition.x >= point.x) {
-                    hit = true;
-                    frames.push(count + frameCount);
-                }
-                count++;
-                if(count >= 6000) {
-                    console.log('ABORT');
-                }
-            }
-        });
-        return frames;
-    };
-
-    var getReboundFrames = function() {
-        //returns the frames at which the ball will bounce off the top
-        var reboundFrames = _.filter(_this.hitPlan, function(frame, index) {
-            return (index % 2 !== 0);
-        });
-        return reboundFrames;
-
-    };
-
-    var getCollisionFrames = function() {
-        //Collision frames are the frames at which a collision with a paddle will occur
-        var collisionFrames = _.filter(_this.hitPlan, function(frame, index) {
-            return (index % 2 === 0);
-        });
-        return collisionFrames;
-    };
-
-    var hitPlan = function() {
-        var frames = getCollisionPrediction(_this.flightPlan);
-        return frames;
-    };
+    
 
     _this.destroy = function() {
         return _this;
     };
 
     _this.init = function() {
+        
         _this.currentTarget = _this.flightPlan[0];
-        _this.hitPlan = hitPlan();
-        _this.collisionFrames = getCollisionFrames();
-        _this.reboundFrames = getReboundFrames();
+        _this.hitPlan = _this.location.hitPlan();
+        _this.collisionFrames = _this.location.getCollisionFrames();
+        _this.reboundFrames = _this.location.getReboundFrames();
         return _this;
     };
 };
