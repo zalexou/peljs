@@ -5,7 +5,7 @@ var frameCount = 0;
 
 var PelGameController = function PelGameController(settings) {
     var _this = this;
-    var ballFactory, scoreManager,  ballLauncher;
+    var ballFactory, scoreManager,  ballLauncher, bonusFactory;
 
     _this.settings = settings;
     _this.context = settings.context;
@@ -19,6 +19,7 @@ var PelGameController = function PelGameController(settings) {
         bottom: []
     };
     _this.balls = [];
+    _this.bonuses = [];
     _this.consecutiveHits = 0;
     _this.hitFrames = [];
 
@@ -32,6 +33,13 @@ var PelGameController = function PelGameController(settings) {
         
     };
 
+    _this.manualLaunchBonus = function() {
+        var bonus = createBonus().init();
+        _this.bonuses.push(bonus);
+        console.log("Bonus collisions: ", bonus.collisionFrames);
+
+    };
+
     _this.stop = function() {
         clearInterval(_this.gameLoopInterval);
         gameView.eraseCanvas();
@@ -40,9 +48,10 @@ var PelGameController = function PelGameController(settings) {
     
     _this.go = function() {
         ballFactory = new BallFactory();
+        bonusFactory = new BonusFactory();
         scoreManager = new ScoreManager(settings);
         ballLauncher = new ObjectLauncher({
-            prob: 2,
+            prob: 0,
             canLaunch: ballIsPlayable,
             create: createBall
         });
@@ -74,6 +83,8 @@ var PelGameController = function PelGameController(settings) {
         var config = {
             maxEntryY:  _this.paddleSpots[0].y() / 2,
             minEntryY: 1,
+            maxEntryX:  100,
+            minEntryX: 100,
             impactPoints: _this.impactPoints,
             exitX: parseInt(_this.settings.canvas.width),
             maxExitY: _this.paddleSpots[0].y() / 2,
@@ -82,6 +93,25 @@ var PelGameController = function PelGameController(settings) {
             maxVelocity: 6
         };
         return ballFactory.createRandomBall(config);
+    };
+
+    var createBonus = function() {
+        var paddle = _this.paddleSpots[generateRandomInt(0, 999999) % _this.paddleSpots.length];
+        var config = {
+            maxEntryY:  0,
+            minEntryY: 0,
+            maxEntryX:  paddle.getCenter().x,
+            minEntryX: paddle.getCenter().x,
+            impactPoints: [{x: paddle.x(), y: paddle.y()}],
+            exitX: 100,
+            maxExitX: paddle.getCenter().x,
+            minExitX: paddle.getCenter().x,
+            maxExitY: _this.settings.canvas.height,
+            minExitY: _this.settings.canvas.height,
+            minVelocity: 3,
+            maxVelocity: 6
+        };
+        return bonusFactory.createRandomBonus(config);
     };
     
     var setImpactPoints = function() {
@@ -120,6 +150,14 @@ var PelGameController = function PelGameController(settings) {
             _this.hitFrames = _this.hitFrames.concat(ball.collisionFrames);
         });
 
+        _.forEach(_this.bonuses, function(bonus) {
+            var bonusEvents = bonus.next();
+            if(bonusEvents.length) {
+                events = events.concat(bonusEvents);
+            }
+            _this.hitFrames = _this.hitFrames.concat(bonus.collisionFrames);
+        });
+
         _this.hitFrames = _.uniq(_this.hitFrames);
         handleEvents(events);
 
@@ -129,6 +167,7 @@ var PelGameController = function PelGameController(settings) {
         }
 
         drawBalls();
+        drawBonuses();
         gameView.drawScore(scoreManager.process());
         gameView.drawMultiplier(scoreManager.multiplier);
         frameCount++;
@@ -138,13 +177,39 @@ var PelGameController = function PelGameController(settings) {
         _.forEach(events, function(e) {
             switch(e.eventType) {
                 case EventTypes.OBJECT_COLLISION: {
-                    manageCollision(e);
+                    if(_.find(e.eventData.objects, function(o) { return o.type == "Ball"})) {
+                        manageBallCollision(e);
+                    } else if (_.find(e.eventData.objects, function(o) { return o.type == "Bonus"})) {
+                        manageBonusCollision(e);
+                    }
                 }
             }
         });
     };
 
-    var manageCollision = function(event) {
+    var manageBonusCollision = function(event) {
+        var colliders = {
+            bonus: _.find(event.eventData.objects, function(collidee) { return collidee["type"] == "Bonus" }),
+            point: _.find(event.eventData.objects, function(collidee) { return collidee["type"] == "Point" })
+        };
+        debugger;
+        //The point of collision is on an active paddle
+        if(_this.paddleSpots[_this.paddlePosition].impactPoint === colliders.point.data) {
+            console.log("bonus hit at frame " ,frameCount);
+        } else {
+            //The point of collision is on a empty paddle spot
+            if(_.find(_this.impactPoints.bottom, function(point) { return point === colliders.point.data})){
+                var bonusIndex = _.indexOf(_this.bonuses, colliders.bonus.data);
+                _this.bonuses.splice(bonusIndex, 1);
+                delete colliders.bonuses.data.destroy();
+                _this.consecutiveHits = 0;
+                console.log("bonus miss at frame " ,frameCount);
+            }
+        }
+        console.log("TODO handle this bonus collision");
+    };
+
+    var manageBallCollision = function(event) {
         //Ball collision
         //Getting the objects to collide
         var colliders = {
@@ -209,6 +274,12 @@ var PelGameController = function PelGameController(settings) {
     var drawBalls = function() {
         _.forEach(_this.balls, function(ball) {
             gameView.drawBall(ball);
+        });
+    };
+
+    var drawBonuses = function() {
+        _.forEach(_this.bonuses, function(bonus) {
+            gameView.drawBonus(bonus);
         });
     };
 

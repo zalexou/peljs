@@ -77,6 +77,14 @@ var PelGameView = function(settings) {
         });
     };
 
+    _this.drawBonus = function(bonus, opacity) {
+        if(!opacity) opacity = 1;
+        _this.context.beginPath();
+        _this.context.strokeRect(bonus.x, bonus.y, 20, 20);
+        _this.context.strokeStyle = "rgba("+bonus.color.r+", "+bonus.color.g+", "+bonus.color.b+", "+opacity+")";
+        _this.context.stroke();
+    };
+
     _this.eraseCanvas = function() {
         _this.context.clearRect(0, 0, parseInt(_this.settings.canvasSettings.width), parseInt(_this.settings.canvasSettings.height));
     };

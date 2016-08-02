@@ -15,6 +15,7 @@ angular.module('pel.view1', ['ngRoute'])
             launch: "Launch game",
             stop: "Stop game",
             launchBall: "Launch ball",
+            launchBonus: "Launch bonus",
         };
         var gameController = null;
         var canvas = null, context = null;
@@ -76,5 +77,9 @@ angular.module('pel.view1', ['ngRoute'])
 
         $scope.launchBall = function() {
             gameController.manualLaunchBall();
+        };
+
+        $scope.launchBonus = function() {
+            gameController.manualLaunchBonus();
         }
     });
