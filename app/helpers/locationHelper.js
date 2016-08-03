@@ -4,6 +4,9 @@
 var LocationHelper = function(object) {
     var _this = this;
     var object = object;
+    var collisionDistance = function() {
+        return 4;
+    };
 
     _this.pickTarget = function() {
         var previous = null;
@@ -18,24 +21,10 @@ var LocationHelper = function(object) {
         }
         return pick;
     };
-
-    _this.pickVerticalTarget = function() {
-        var previous = null;
-        var pick = null;
-        for(var i = 0; i < object.flightPlan.length; i++) {
-            if( object.y > object.flightPlan[i].y) {
-                previous = object.flightPlan[i];
-            } else {
-                pick = object.flightPlan[i];
-                break;
-            }
-        }
-        return pick;
-    };
-
+    
     _this.getNextCoordinates = function (point, target, velocity) {
         //Thales
-        var targetDist = Math.hypot(target.x - point.x, target.y - point.y);
+        var targetDist = _this.getDistance(point, target);
         var ratio = targetDist / velocity;
 
         var H = target.y - point.y;
@@ -75,22 +64,9 @@ var LocationHelper = function(object) {
     };
     
     _this.checkCollision = function() {
-        //If next position passes a collision point on x axis (or stops right on it)
-        if(object.currentTarget && Math.floor(object.x) >= Math.floor(object.currentTarget.x)) {
-            return true;
-        } else {
-            return false;
-        }
+        return _this.getDistance({x: object.x, y: object.y}, object.currentTarget) <= collisionDistance();
     };
 
-    _this.checkVerticalCollision = function() {
-        //If next position passes a collision point on x axis (or stops right on it)
-        if(object.currentTarget && Math.floor(object.y) >= Math.floor(object.currentTarget.y)) {
-            return true;
-        } else {
-            return false;
-        }
-    };
 
     _this.getCollisionPrediction = function(points, start) {
         var frames = [];
@@ -112,4 +88,9 @@ var LocationHelper = function(object) {
         });
         return frames;
     };
+
+    _this.getDistance = function(a, b) {
+        return Math.hypot(b.x - a.x, b.y - a.y);
+    };
+
 };

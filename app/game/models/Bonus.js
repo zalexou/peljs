@@ -18,7 +18,7 @@ var Bonus = function() {
         console.log("bonus position", _this.x, _this.y);
         _this.eventQueue = [];
         _this.previousTarget = _this.currentTarget;
-        _this.currentTarget = _this.location.pickVerticalTarget();
+        _this.currentTarget = _this.location.pickTarget();
         console.log("picked target: ", _this.currentTarget, _this.previousTarget);
         var coord = _this.location.getNextCoordinates({x: _this.x, y: _this.y} , _this.currentTarget, _this.velocity);
         console.log("computed coordinates", coord);
@@ -30,7 +30,7 @@ var Bonus = function() {
 
     var handleCollision = function() {
         //If next position passes a collision point on x axis (or stops right on it)
-        if(_this.location.checkVerticalCollision()) {
+        if(_this.location.checkCollision()) {
             _this.eventQueue.push(createCollisionEvent());
         }
     };

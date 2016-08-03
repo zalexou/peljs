@@ -21,7 +21,6 @@ var Ball = function() {
         _this.eventQueue = [];
         _this.previousTarget = _this.currentTarget;
 
-        _this.currentTarget = _this.location.pickTarget();
 
         var coord = _this.location.getNextCoordinates({x: _this.x, y: _this.y} , _this.currentTarget, _this.velocity);
         _this.x = coord.x;
@@ -35,6 +34,10 @@ var Ball = function() {
         //If next position passes a collision point on x axis (or stops right on it)
         if(_this.location.checkCollision()) {
             _this.eventQueue.push(createCollisionEvent());
+            var currentTargetIndex = _.indexOf(_this.flightPlan,_this.currentTarget);
+            console.log("currentTargetIndex",currentTargetIndex)
+            _this.currentTarget = _this.flightPlan[currentTargetIndex + 1];
+            _this.previousTarget = _this.currentTarget;
         }
     };
 
@@ -51,7 +54,7 @@ var Ball = function() {
                 },
                 {
                     type: "Point",
-                    data: _this.previousTarget
+                    data: _this.currentTarget
                 }
             ]
         };

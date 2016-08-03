@@ -6,7 +6,7 @@ var frameCount = 0;
 var PelGameController = function PelGameController(settings) {
     var _this = this;
     var ballFactory, scoreManager,  ballLauncher, bonusFactory;
-
+    var locationHelper = new LocationHelper();
     _this.settings = settings;
     _this.context = settings.context;
     _this.paddleSpots = [];
@@ -192,7 +192,6 @@ var PelGameController = function PelGameController(settings) {
             bonus: _.find(event.eventData.objects, function(collidee) { return collidee["type"] == "Bonus" }),
             point: _.find(event.eventData.objects, function(collidee) { return collidee["type"] == "Point" })
         };
-        debugger;
         //The point of collision is on an active paddle
         if(_this.paddleSpots[_this.paddlePosition].impactPoint === colliders.point.data) {
             console.log("bonus hit at frame " ,frameCount);

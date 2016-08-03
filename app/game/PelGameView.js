@@ -24,8 +24,8 @@ var PelGameView = function(settings) {
         spot.y(currentPaddleY);
         spot.length(paddleLength);
         _this.context.beginPath();
-        _this.context.strokeRect(spot.x(), spot.y(), paddleLength, 5);
         _this.context.strokeStyle = 'black';
+        _this.context.strokeRect(spot.x(), spot.y(), paddleLength, 5);
         _this.context.stroke();
         _this.drawnSpots.push(spot);
     };
