@@ -35,7 +35,6 @@ var Ball = function() {
         if(_this.location.checkCollision()) {
             _this.eventQueue.push(createCollisionEvent());
             var currentTargetIndex = _.indexOf(_this.flightPlan,_this.currentTarget);
-            console.log("currentTargetIndex",currentTargetIndex)
             _this.currentTarget = _this.flightPlan[currentTargetIndex + 1];
             _this.previousTarget = _this.currentTarget;
         }

@@ -15,13 +15,10 @@ var Bonus = function() {
     _this.currentTarget = null;
     _this.previousTarget = null;
     _this.next = function() {
-        console.log("bonus position", _this.x, _this.y);
         _this.eventQueue = [];
         _this.previousTarget = _this.currentTarget;
         _this.currentTarget = _this.location.pickTarget();
-        console.log("picked target: ", _this.currentTarget, _this.previousTarget);
         var coord = _this.location.getNextCoordinates({x: _this.x, y: _this.y} , _this.currentTarget, _this.velocity);
-        console.log("computed coordinates", coord);
         _this.x = coord.x;
         _this.y = coord.y;
         handleCollision();

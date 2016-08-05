@@ -100,12 +100,12 @@ var PelGameController = function PelGameController(settings) {
         var config = {
             maxEntryY:  0,
             minEntryY: 0,
-            maxEntryX:  paddle.getCenter().x,
-            minEntryX: paddle.getCenter().x,
-            impactPoints: [{x: paddle.x(), y: paddle.y()}],
+            maxEntryX:  paddle.impactPoint.x,
+            minEntryX: paddle.impactPoint.x,
+            impactPoints: [paddle.impactPoint],
             exitX: 100,
-            maxExitX: paddle.getCenter().x,
-            minExitX: paddle.getCenter().x,
+            minExitX: paddle.impactPoint.x,
+            maxExitX: paddle.impactPoint.x,
             maxExitY: _this.settings.canvas.height,
             minExitY: _this.settings.canvas.height,
             minVelocity: 3,
@@ -155,7 +155,6 @@ var PelGameController = function PelGameController(settings) {
             if(bonusEvents.length) {
                 events = events.concat(bonusEvents);
             }
-            _this.hitFrames = _this.hitFrames.concat(bonus.collisionFrames);
         });
 
         _this.hitFrames = _.uniq(_this.hitFrames);
@@ -195,17 +194,18 @@ var PelGameController = function PelGameController(settings) {
         //The point of collision is on an active paddle
         if(_this.paddleSpots[_this.paddlePosition].impactPoint === colliders.point.data) {
             console.log("bonus hit at frame " ,frameCount);
+            var bonusIndex = _.indexOf(_this.bonuses, colliders.bonus.data);
+            _this.bonuses.splice(bonusIndex, 1);
+            delete colliders.bonus.data.destroy();
         } else {
             //The point of collision is on a empty paddle spot
             if(_.find(_this.impactPoints.bottom, function(point) { return point === colliders.point.data})){
                 var bonusIndex = _.indexOf(_this.bonuses, colliders.bonus.data);
                 _this.bonuses.splice(bonusIndex, 1);
-                delete colliders.bonuses.data.destroy();
-                _this.consecutiveHits = 0;
+                delete colliders.bonus.data.destroy();
                 console.log("bonus miss at frame " ,frameCount);
             }
         }
-        console.log("TODO handle this bonus collision");
     };
 
     var manageBallCollision = function(event) {
